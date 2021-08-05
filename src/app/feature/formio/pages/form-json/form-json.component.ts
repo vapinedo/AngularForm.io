@@ -1,5 +1,9 @@
 import { Formio } from 'formiojs';
 import { Component, OnInit } from '@angular/core';
+import { FormioService } from '@core/services/formio.service';
+import { ValidateService } from '@core/services/validate.service';
+import { ValidationMessage } from '@core/interfaces/validation-message.interface';
+import { ValidationRule } from '@core/interfaces/validation-rule.interface';
 
 @Component({
   selector: 'app-form-json',
@@ -8,66 +12,62 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FormJsonComponent implements OnInit {
 
-  private readonly externalForm = 'https://examples.form.io/example';
-  private localForm = {
-    components: [
-      {
-        type: 'textfield',
-        key: 'firstName',
-        label: 'Nombres',
-        placeholder: 'Digita tu nombre',
-        input: true,
-      },
-      {
-        type: 'textfield',
-        key: 'lastName',
-        label: 'Apellidos',
-        placeholder: 'Digita tu apellido',
-        input: true
-      },
-      {
-        type: 'email',
-        key: 'email',
-        label: 'Email',
-        placeholder: 'Digita tu email',
-        input: true
-      },
-      {
-        type: 'button',
-        action: 'submit',
-        label: 'Enviar',
-        theme: 'primary',
-        disabled: true
-      }
-    ]
+  public classContext = this;
+  public hasErrors: boolean = false;
+  public readonly formID: string = 'form-json';
+  public readonly formControlRef: string = '.form-control';
+
+  formErrors = {
+    'nombre': '',
+    'apellido': '',
+    'email': ''
   };
 
-  constructor() {}
-
+  constructor(
+    private formioSvc: FormioService,
+    private validateSvc: ValidateService
+  ) {}
+  
   ngOnInit(): void {
-    const DOMElement = document.getElementById('form-json');
+    this.formioSvc.read()
+    .subscribe({
+      next: formConfig => {
+        this.formInit(formConfig)
+      }
+    });
+  }
+    
+  async formInit(formConfig: any): Promise<void> {
+    const formContainer = document.getElementById(this.formID);
+    await Formio.createForm(formContainer, formConfig);
+    const formControlsNodeList: NodeList = document.querySelectorAll(`#${this.formID} ${this.formControlRef}`);
+    const formControlsList = this.nodeListToFormControlsArray(formControlsNodeList);
 
-    Formio.createForm(DOMElement, this.localForm)
-      .then(function(form) {
+    this.validateSvc.validationMessagesInit(formControlsList);
 
-        const component = form.getComponent('email')
-        const firstName = form.getComponent('firstName');
-
-        component.on('blur', (event: any) => {
-          console.log('email blur has been fired', event)
-
-          firstName.setValue('Nuevo valor');
-        })
+    this.validateSvc.formListenersInit(formControlsList)
+    .subscribe({
+      next: (event: any) => {
+        let formControl: HTMLInputElement = event.target;
+        const validationRules = this.getValidationRulesByFormControl(formControl, formConfig);
         
-        form.on('submit', function(submission: any) {
-          console.log('Form has been submitted!', submission);
-        });
+        this.validateSvc.validateFormControl(formControl, validationRules);
+      }
+    })
+  }
 
-        // form.on('blur', (event: any) => {
-        //   console.log('Blur has been fired', event);
-        // });
+  private nodeListToFormControlsArray(nodeList: NodeList): HTMLInputElement[] {
+    let formControls: HTMLInputElement[] = [];
+    nodeList.forEach(node => formControls.push(<HTMLInputElement>node));
+    return formControls;
+  }
 
-      })
+  private getValidationRulesByFormControl(formControl: HTMLInputElement, formConfig: any): ValidationRule[] {
+    const formControlName = formControl.id.substring(3);
+    const formioComponents = formConfig.components;
+    const formioComponent = formioComponents.find((component: any) => component.key === formControlName);    
+    const validationRules = formioComponent.validationRules;
+    return validationRules;
   }
 
 }

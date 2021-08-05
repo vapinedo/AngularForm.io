@@ -1,3 +1,11 @@
 <h1 class="animate__animated animate__fadeIn animate_faster">Form JSON</h1>
+<hr>
 
-<article id="form-json" class="animate__animated animate__fadeIn animate_faster"></article>
+<div *ngIf="hasErrors" class="alert alert-danger animate__animated animate__fadeIn animate_fasterr" role="alert">
+    <h5>Forms errors</h5>
+    <ul>
+        <!-- <li *ngFor="let item of validationMessages">{{ item }}</li> -->
+    </ul>
+</div>
+
+<article [id]="formID" class="animate__animated animate__fadeIn animate_faster"></article>
