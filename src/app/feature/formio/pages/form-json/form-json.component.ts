@@ -2,7 +2,6 @@ import { Formio } from 'formiojs';
 import { Component, OnInit } from '@angular/core';
 import { FormioService } from '@core/services/formio.service';
 import { ValidateService } from '@core/services/validate.service';
-import { ValidationMessage } from '@core/interfaces/validation-message.interface';
 import { ValidationRule } from '@core/interfaces/validation-rule.interface';
 
 @Component({
@@ -16,12 +15,6 @@ export class FormJsonComponent implements OnInit {
   public hasErrors: boolean = false;
   public readonly formID: string = 'form-json';
   public readonly formControlRef: string = '.form-control';
-
-  formErrors = {
-    'nombre': '',
-    'apellido': '',
-    'email': ''
-  };
 
   constructor(
     private formioSvc: FormioService,
@@ -40,18 +33,15 @@ export class FormJsonComponent implements OnInit {
   async formInit(formConfig: any): Promise<void> {
     const formContainer = document.getElementById(this.formID);
     await Formio.createForm(formContainer, formConfig);
+
     const formControlsNodeList: NodeList = document.querySelectorAll(`#${this.formID} ${this.formControlRef}`);
     const formControlsList = this.nodeListToFormControlsArray(formControlsNodeList);
 
-    this.validateSvc.validationMessagesInit(formControlsList);
-
-    this.validateSvc.formListenersInit(formControlsList)
+    this.validateSvc.formListenersInit(formControlsList, formConfig)
     .subscribe({
       next: (event: any) => {
         let formControl: HTMLInputElement = event.target;
-        const validationRules = this.getValidationRulesByFormControl(formControl, formConfig);
-        
-        this.validateSvc.validateFormControl(formControl, validationRules);
+        console.log('Event has been fired');
       }
     })
   }

@@ -15,9 +15,6 @@ export class ValidationRulesService {
   }
 
   minlength(formControl: HTMLInputElement, minlength: number): string | null {
-
-    console.log(minlength)
-
     const formControlValue = formControl.value;
     const formControlName = formControl.id.substring(3);
     const message = `${formControlName} debe tener mínimo ${minlength} caracteres`;

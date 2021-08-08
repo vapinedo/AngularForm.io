@@ -9,26 +9,41 @@ export class FormioService {
 
     private data = {
       title: "Formio Form",
+      eventListeners: ['click'],
       components: [
         {
           id: "ID",
           type: 'textfield',
-          key: 'nombre',
-          label: 'Nombre',
-          placeholder: 'Digita tu nombre',
+          key: 'pais',
+          label: 'País',
+          placeholder: 'Digita país',
           input: true,
           validationRules: [
-              { "required": true },
-              { "minlength": 2 },
-              { "maxlength": 10 }
-          ]
+            { "required": true },
+            { "minlength": 2 },
+            { "maxlength": 10 }
+          ],
+          eventListeners: { 
+            'callBack': {
+              'service': {
+                'serviceName': 'callBack1',
+                'params': ['Mensaje para mostrar'],
+                // 'response': {
+                //   'hiddenValues': ['campoAOcultar'],      
+                //   'setValues': [
+                //     { 'campoASettear': 'valorASettear' }
+                //   ]      
+                // }
+              },
+            }
+          }
         },
         {
           id: "ID",
           type: 'textfield',
-          key: 'apellido',
-          label: 'Apellidos',
-          placeholder: 'Digita tu apellido',
+          key: 'moneda',
+          label: 'Moneda',
+          placeholder: 'Digita tu moneda',
           input: true,
           validationRules: [
             { "required": true }
@@ -50,20 +65,6 @@ export class FormioService {
           theme: 'primary'
         }
       ]
-    };
-
-    validationMessages = {
-      'nombre': {
-        'required': 'Nombre is requerido',
-        'minlength': 'Nombre debe tener mínimo 2 caracteres',
-        'maxlength': 'Nombre debe tener máximo 10 caracteres'
-      },
-      'apellido': {
-        'required': 'Apellido es requerido'
-      },
-      'email': {
-        'required': 'Email es requerido'
-      }
     };
 
     constructor() {}
