@@ -1,7 +1,7 @@
+import { SubSink } from 'subsink';
 import { Formio } from 'formiojs';
 import { Component, OnInit } from '@angular/core';
 import { FormioService } from '@core/services/formio.service';
-import { ValidateService } from '@core/services/validate.service';
 import { ValidationRule } from '@core/interfaces/validation-rule.interface';
 
 @Component({
@@ -11,53 +11,54 @@ import { ValidationRule } from '@core/interfaces/validation-rule.interface';
 })
 export class FormJsonComponent implements OnInit {
 
-  public classContext = this;
-  public hasErrors: boolean = false;
+  private subscriptions = new SubSink();
   public readonly formID: string = 'form-json';
   public readonly formControlRef: string = '.form-control';
 
   constructor(
-    private formioSvc: FormioService,
-    private validateSvc: ValidateService
+    private formioSvc: FormioService
   ) {}
   
-  ngOnInit(): void {
-    this.formioSvc.read()
-    .subscribe({
-      next: formConfig => {
-        this.formInit(formConfig)
-      }
-    });
+  async ngOnInit() {
+    const formConfig = await this.formioSvc.read();
+    const form = this.createForm(formConfig, this.formID);
+    const formControls = this.getFormControls(this.formID, this.formControlRef);
+    this.setEventListenersToForm(formControls, formConfig);
   }
     
-  async formInit(formConfig: any): Promise<void> {
-    const formContainer = document.getElementById(this.formID);
-    await Formio.createForm(formContainer, formConfig);
-
-    const formControlsNodeList: NodeList = document.querySelectorAll(`#${this.formID} ${this.formControlRef}`);
-    const formControlsList = this.nodeListToFormControlsArray(formControlsNodeList);
-
-    this.validateSvc.formListenersInit(formControlsList, formConfig)
-    .subscribe({
-      next: (event: any) => {
-        let formControl: HTMLInputElement = event.target;
-        console.log('Event has been fired');
-      }
-    })
+  async createForm(formConfig: any, formID: string): Promise<void> {
+    const formContainer = document.getElementById(formID);
+    const form = await Formio.createForm(formContainer, formConfig);
+    return form;
   }
-
-  private nodeListToFormControlsArray(nodeList: NodeList): HTMLInputElement[] {
+  
+  getFormControls(formID: string, formControlClassName: string): HTMLInputElement[] {
     let formControls: HTMLInputElement[] = [];
+    const nodeList: NodeList = document.querySelectorAll(`#${formID} ${formControlClassName}`);
     nodeList.forEach(node => formControls.push(<HTMLInputElement>node));
     return formControls;
   }
 
-  private getValidationRulesByFormControl(formControl: HTMLInputElement, formConfig: any): ValidationRule[] {
-    const formControlName = formControl.id.substring(3);
-    const formioComponents = formConfig.components;
-    const formioComponent = formioComponents.find((component: any) => component.key === formControlName);    
-    const validationRules = formioComponent.validationRules;
-    return validationRules;
+  setEventListenersToForm(formControls: HTMLInputElement[], formConfig: any) {
+    this.formioSvc.setEvenListeners(formControls, formConfig)
+    .subscribe({
+      next: (event: any) => {
+        let formControl: HTMLInputElement = event.target;
+        console.log('Value: ', formControl.value);
+      }
+    })
+  }
+
+  // getValidationRulesByFormControl(formControl: HTMLInputElement, formConfig: any): ValidationRule[] {
+  //   const formControlName = formControl.id.substring(3);
+  //   const formioComponents = formConfig.components;
+  //   const formioComponent = formioComponents.find((component: any) => component.key === formControlName);    
+  //   const validationRules = formioComponent.validationRules;
+  //   return validationRules;
+  // }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
 }

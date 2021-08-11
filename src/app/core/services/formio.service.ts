@@ -1,81 +1,173 @@
-import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
+import { fromEvent, merge, Observable } from 'rxjs';
+import { ApiFormioService } from './api-formio.service';
+import { ValidationRulesService } from './validation-rules.service';
 
 
 @Injectable()
 export class FormioService {
 
-    private readonly timeToResponse = 1000;
+  private readonly timeToResponse = 1000;
 
-    private data = {
-      title: "Formio Form",
-      eventListeners: ['click'],
-      components: [
-        {
-          id: "ID",
-          type: 'textfield',
-          key: 'pais',
-          label: 'País',
-          placeholder: 'Digita país',
-          input: true,
-          validationRules: [
-            { "required": true },
-            { "minlength": 2 },
-            { "maxlength": 10 }
-          ],
-          eventListeners: { 
-            'callBack': {
-              'service': {
-                'serviceName': 'callBack1',
-                'params': ['Mensaje para mostrar'],
-                // 'response': {
-                //   'hiddenValues': ['campoAOcultar'],      
-                //   'setValues': [
-                //     { 'campoASettear': 'valorASettear' }
-                //   ]      
-                // }
-              },
-            }
-          }
-        },
-        {
-          id: "ID",
-          type: 'textfield',
-          key: 'moneda',
-          label: 'Moneda',
-          placeholder: 'Digita tu moneda',
-          input: true,
-          validationRules: [
-            { "required": true }
-          ]
-        },
-        {
-          id: "ID",
-          type: 'email',
-          key: 'email',
-          label: 'Email',
-          placeholder: 'Digita tu email',
-          input: true,
-          validationRules: []
-        },
-        {
-          type: 'button',
-          action: 'submit',
-          label: 'Enviar',
-          theme: 'primary'
+  private JSONForm = {
+    title: "Formio Form",
+    eventListeners: ['blur'],
+    components: [
+      {
+        id: "ID",
+        type: 'textfield',
+        key: 'pais',
+        label: 'País',
+        placeholder: 'Digita país',
+        input: true,
+        validationRules: [
+          { "required": true },
+          { "minlength": 2 },
+          { "maxlength": 10 }
+        ],
+        callBack: { 
+          'name': 'callBack1',
+          'params': [1],
         }
-      ]
-    };
+      },
+      {
+        id: "ID",
+        type: 'textfield',
+        key: 'moneda',
+        label: 'Moneda',
+        placeholder: 'Digita tu moneda',
+        input: true,
+        validationRules: [
+          { "required": true }
+        ]
+      },
+      {
+        id: "ID",
+        type: 'email',
+        key: 'email',
+        label: 'Email',
+        placeholder: 'Digita tu email',
+        input: true,
+        validationRules: []
+      },
+      {
+        type: 'button',
+        action: 'submit',
+        label: 'Enviar',
+        theme: 'primary'
+      }
+    ]
+  };
 
-    constructor() {}
+  private data = {
+    title: "Formio Form",
+    eventListeners: ['blur'],
+    components: [
+      {
+        id: "ID",
+        type: 'textfield',
+        key: 'pais',
+        label: 'País',
+        placeholder: 'Digita país',
+        input: true,
+        validationRules: [
+          { "required": true },
+          { "minlength": 2 },
+          { "maxlength": 10 }
+        ],
+        callBack: { 
+          'name': 'callBack1',
+          'params': [1],
+        }
+      },
+      {
+        id: "ID",
+        type: 'textfield',
+        key: 'moneda',
+        label: 'Moneda',
+        placeholder: 'Digita tu moneda',
+        input: true,
+        validationRules: [
+          { "required": true }
+        ]
+      },
+      {
+        id: "ID",
+        type: 'email',
+        key: 'email',
+        label: 'Email',
+        placeholder: 'Digita tu email',
+        input: true,
+        validationRules: []
+      },
+      {
+        type: 'button',
+        action: 'submit',
+        label: 'Enviar',
+        theme: 'primary'
+      }
+    ]
+  };
+    
+  constructor(
+    private apiFormioSvc: ApiFormioService,
+    private validationRulesSvc: ValidationRulesService
+  ) {}
 
-    read(): Observable<any> {
-        return new Observable(observer => {
-            setTimeout(() => {
-                observer.next(this.data);
-                observer.complete();
-            }, this.timeToResponse)
-        });
+  read(): Promise<unknown>  {
+    return new Observable(observer => {
+      setTimeout(() => {
+          observer.next(this.data);
+          observer.complete();
+      }, this.timeToResponse)
+    })
+    .toPromise();
+  }
+
+  setEvenListeners(formControls: HTMLInputElement[], formConfig: any): Observable<unknown> {
+    const eventListeners = formConfig.eventListeners;
+    const observables$ = eventListeners.map((event: string) => fromEvent(formControls, event));
+    
+    const listeners = merge(...observables$)
+      .pipe(
+        tap((event: any) => {
+          const formControl: HTMLInputElement = event.target;
+          const formioComponent = this.getFormioComponent(formControl, formConfig);
+          const hasCallBack = this.checkForCallBack(formioComponent);
+
+          if (hasCallBack) {
+            this.executeCallBack(formControl, formioComponent);
+          }
+        })
+      )
+    return listeners;
+  }
+
+  private checkForCallBack(formioComponent: any) {
+    return (formioComponent.callBack) ? true : false;
+  }
+
+  private executeCallBack(formControl: HTMLInputElement, formioComponent: any) {
+    const formControlValue = formControl.value;
+    const callBackName = formioComponent.callBack.name;
+    const callBackParams = formioComponent.callBack.params ? formioComponent.callBack.params : null;
+    const callBackResponse = eval(`this.apiFormioSvc.${callBackName}(${callBackParams})`);        
+
+    if (callBackResponse instanceof Observable) {
+      callBackResponse.subscribe({
+        next: data => console.log(data)
+      })
+    } else {
+      console.log('CallBack response is not an Observable');
     }
+  }
+
+  private getFormioComponent(formControl: HTMLInputElement, formConfig: any): any {
+    const formControlName = formControl.id.substring(3);
+    const formioComponents = formConfig.components;
+    const formioComponent = formioComponents.find((component: any) => component.key === formControlName);    
+    return formioComponent;
+  }
 
 }
