@@ -9,13 +9,14 @@ export class ApiFormioService {
     constructor() {}
 
     callBack1(param?: any) {
-        const response = param ? param : 'Hello from API';
+        let response = param ? param : 'Hello from API';
         return new Observable(observer => {
             setTimeout(() => {
                 observer.next(response);
                 observer.complete();
             }, this.timeToResponse)
         })
+        // .toPromise();
         // return response;
     }
 }

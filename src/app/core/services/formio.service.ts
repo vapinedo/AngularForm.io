@@ -10,7 +10,7 @@ export class FormioService {
 
   private readonly timeToResponse = 1000;
 
-  private JSONForm = {
+  private formConfigCopy = {
     title: "Formio Form",
     eventListeners: ['blur'],
     components: [
@@ -28,7 +28,7 @@ export class FormioService {
         ],
         callBack: { 
           'name': 'callBack1',
-          'params': [1],
+          'params': [],
         }
       },
       {
@@ -60,7 +60,7 @@ export class FormioService {
     ]
   };
 
-  private data = {
+  private formConfig = {
     title: "Formio Form",
     eventListeners: ['blur'],
     components: [
@@ -78,7 +78,7 @@ export class FormioService {
         ],
         callBack: { 
           'name': 'callBack1',
-          'params': [1],
+          'params': [this.formConfigCopy],
         }
       },
       {
@@ -109,7 +109,7 @@ export class FormioService {
       }
     ]
   };
-    
+
   constructor(
     private apiFormioSvc: ApiFormioService,
     private validationRulesSvc: ValidationRulesService
@@ -118,7 +118,7 @@ export class FormioService {
   read(): Promise<unknown>  {
     return new Observable(observer => {
       setTimeout(() => {
-          observer.next(this.data);
+          observer.next(this.formConfig);
           observer.complete();
       }, this.timeToResponse)
     })
@@ -151,15 +151,22 @@ export class FormioService {
   private executeCallBack(formControl: HTMLInputElement, formioComponent: any) {
     const formControlValue = formControl.value;
     const callBackName = formioComponent.callBack.name;
-    const callBackParams = formioComponent.callBack.params ? formioComponent.callBack.params : null;
-    const callBackResponse = eval(`this.apiFormioSvc.${callBackName}(${callBackParams})`);        
+    const callBackParamsRaw = formioComponent.callBack.params ? formioComponent.callBack.params[0] : null;
+    const paramReady = JSON.stringify(callBackParamsRaw);
+
+    const callBackResponse = eval(`this.apiFormioSvc.${callBackName}(${paramReady})`);        
 
     if (callBackResponse instanceof Observable) {
       callBackResponse.subscribe({
-        next: data => console.log(data)
+        next: data => console.log('Observable:', data)
       })
+
+    } else if (callBackResponse instanceof Promise) {
+      callBackResponse
+      .then(resolve => console.log('Promise:', resolve))
+
     } else {
-      console.log('CallBack response is not an Observable');
+      console.log('CallBack response is not an Observable nor Promise');
     }
   }
 
