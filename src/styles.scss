@@ -1,3 +1,72 @@
+@import "src/assets/scss/colors";
+
+html, body { height: 100%; }
+body { 
+    margin: 0; 
+    background-color: #e0e4e7;
+    font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+* {
+    outline: none;
+}
+
 .main-wrapper {
-    padding: 2em;
+    padding: 2.5em;
+}
+
+.box {
+    padding: 24px;
+    border-radius: 5px;
+    background-color: $blanco-500;
+}
+
+table {
+    width: 100%;
+
+    tr.mat-header-row {
+        color: $gris-300;
+        text-transform: uppercase;
+        background-color: $gris-100;
+    }
+
+    .actions {
+        font-size: 22px;
+        color: $gris-500;
+        margin-right: 100px;
+
+        i {
+            padding: 5px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            
+            &:first-child {
+                margin-right: 15px;
+            }
+            &:hover {
+                cursor: pointer;
+                color: $blanco-500;
+                background-color: $azul-400;
+            }
+        }
+    }
+}
+
+.table-search {
+    display: flex;
+    margin: 12px auto;
+    align-items: center;
+    justify-content: space-between;
+    
+    .input-search {
+        width: 60%;
+
+        input {
+            width: 100%;
+            border: none;
+            height: 35px;
+            color: $gris-300;
+            padding-left: 22px;
+        }
+    }
 }

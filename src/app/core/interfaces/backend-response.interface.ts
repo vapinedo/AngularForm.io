@@ -2,7 +2,7 @@ export interface BackendResponse {
     data: any;
     level: number;
     message: string;
-    messages: string;
+    messages: string[];
 }
 
 interface Data {

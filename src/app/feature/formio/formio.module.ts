@@ -5,7 +5,7 @@ import { SharedModule } from '@shared/shared.module';
 import { FormioRoutingModule } from './formio-routing.module';
 
 import { FormJsonComponent } from './pages/form-json/form-json.component';
-import { FormEmbedUrlComponent } from './pages/form-embed-url/form-embed-url.component';
+import { FormioAdminComponent } from './pages/admin/formio-admin.component';
 
 
 const modules = [
@@ -16,7 +16,7 @@ const modules = [
 
 const components = [
   FormJsonComponent,
-  FormEmbedUrlComponent
+  FormioAdminComponent
 ];
 
 @NgModule({

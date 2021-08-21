@@ -2,9 +2,16 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+export const apiURLS = {
+  formio: 'http://132.147.2.65/khcm/KMs.FormsIo.dll/api/v1/'
+}
+
+export const apiEndPoints = {
+  formio: '/forms'
+}
+
 export const environment = {
-  production: false,
-  formioAPI: 'http://132.147.2.65/khcm/KMs.FormsIo.dll/api/v1/forms/5D676281-4EF0-4A6E-B8C0-726AD6A6306B?='
+  production: false
 };
 
 /*

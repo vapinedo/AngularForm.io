@@ -26,12 +26,23 @@ export class FormJsonComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const form: FormioJSON = await this.formioSvc.getForm();
-    const formRendered = this.renderForm(form, this.DOMElementID);
-    const formioComponents = form.components;
+    this.subscriptions.add(
+      this.formioSvc.read()
+        .subscribe({
+          next: data => {
+            console.log(data);
+          },
+          error: err => console.log('Error:', err),
+          complete: () => console.log('Complete read all forms')
+        })
+    );
+
+    // const form: FormioJSON = await this.formioSvc.getForm();
+    // const formRendered = this.renderForm(form, this.DOMElementID);
+    // const formioComponents = form.components;
     
-    const eventListeners = this.getEventListeners(formioComponents);
-    this.initializeEventListeners(eventListeners);
+    // const eventListeners = this.getEventListeners(formioComponents);
+    // this.initializeEventListeners(eventListeners);
   }
   
   async renderForm(form: any, DOMElementID: string): Promise<void> {

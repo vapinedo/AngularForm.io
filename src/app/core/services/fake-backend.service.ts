@@ -69,7 +69,7 @@ export class FakeBackendService {
     }
 
     onCalcFields() {
-        let response = "Response from onCalcFields on Backend";
+        let response = "Aqui iria la respuesta del backend";
         return new Observable(observer => {
             setTimeout(() => {
                 observer.next(response);

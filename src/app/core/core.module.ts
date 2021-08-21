@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { FormioService } from './services/formio.service';
 import { FakeBackendService } from './services/fake-backend.service';
-import { ValidationRulesService } from './services/validation-rules.service';
-
+import { InterceptorService } from './services/interceptor.service';
 
 @NgModule
 ({
@@ -14,7 +13,11 @@ import { ValidationRulesService } from './services/validation-rules.service';
   providers: [
     FormioService,
     FakeBackendService,
-    ValidationRulesService
+    {
+      multi: true,
+      provide: HTTP_INTERCEPTORS,
+      useClass: InterceptorService
+    }
   ]
 })
 export class CoreModule { }
