@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from '@shared/shared.module';
 import { FormioRoutingModule } from './formio-routing.module';
 
-import { FormJsonComponent } from './pages/form-json/form-json.component';
 import { FormioAdminComponent } from './pages/admin/formio-admin.component';
+import { FormioDetailComponent } from './pages/detail/formio-detail.component';
 
 
 const modules = [
@@ -15,8 +15,8 @@ const modules = [
 ];
 
 const components = [
-  FormJsonComponent,
-  FormioAdminComponent
+  FormioAdminComponent,
+  FormioDetailComponent
 ];
 
 @NgModule({

@@ -1,4 +1,4 @@
-<section class="tabla-con-filtro animate__animated animate__fadeIn animate_faster">
+<section class="animate__animated animate__fadeIn animate_faster">
 
   <article class="box animate__animated animate__fadeIn animate_faster">
       <h2>{{ title }}</h2>
@@ -21,6 +21,7 @@
             <ng-container matColumnDef="cod_form">
                 <th mat-header-cell *matHeaderCellDef class="text-center">Acciones</th>
                 <td mat-cell *matCellDef="let item" class="actions text-center">
+                    <i [routerLink]="['/formio/detail', item.cod_form]" class='bx bx-show'></i>
                     <i class='bx bx-pencil'></i>
                     <i class='bx bx-trash-alt'></i>
                 </td>

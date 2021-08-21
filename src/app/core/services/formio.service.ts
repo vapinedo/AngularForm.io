@@ -21,7 +21,9 @@ export class FormioService {
   }
 
   readOne(id: string) {  
-    return this.http.get<any>(`${this.url}/${this.endoPoint}`);
+    return this.http.get<any>(`${this.url}/${this.endoPoint}/${id}`)
+    .pipe(pluck('data'))
+    .toPromise();
   }
 
 }

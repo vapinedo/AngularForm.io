@@ -37,11 +37,12 @@ table {
 
         i {
             padding: 5px;
+            margin-right: 15px;
             border-radius: 3px;
             transition: all 0.2s;
             
-            &:first-child {
-                margin-right: 15px;
+            &:last-child {
+                margin-right: 0;
             }
             &:hover {
                 cursor: pointer;

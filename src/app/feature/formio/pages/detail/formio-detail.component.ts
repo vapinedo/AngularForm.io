@@ -6,48 +6,59 @@ import { FormioService } from '@core/services/formio.service';
 import { FakeBackendService } from '@core/services/fake-backend.service';
 import { FormioComponent, FormioJSON } from '@core/interfaces/formio-json.interface';
 import { FormcontrolEventListener } from '@core/interfaces/formcontrol-event-pair.interface';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-form-json',
-  templateUrl: './form-json.component.html',
-  styleUrls: ['./form-json.component.scss']
+  selector: 'app-formio-detail',
+  templateUrl: './formio-detail.component.html',
+  styleUrls: ['./formio-detail.component.scss']
 })
-export class FormJsonComponent implements OnInit {
+export class FormioDetailComponent implements OnInit {
 
-  private form: any;
+  public form: any;
+  public title: string = 'Formulario';
   private subscriptions = new SubSink();
-  public readonly DOMElementID: string = 'form-json';
+  public readonly DOMElementID: string = 'formio-form';
   public readonly formControlClassName: string = '.form-control';
 
   constructor(
     private renderer2: Renderer2,
     private formioSvc: FormioService,
-    private fakeBackendSvc: FakeBackendService
+    private activatedRoute: ActivatedRoute,
   ) {}
 
   async ngOnInit() {
-    this.subscriptions.add(
-      this.formioSvc.read()
-        .subscribe({
-          next: data => {
-            console.log(data);
-          },
-          error: err => console.log('Error:', err),
-          complete: () => console.log('Complete read all forms')
-        })
-    );
+    const formID = this.activatedRoute.snapshot.params.id;
+    const form = await this.formioSvc.readOne(formID);
+    const formComponents = form.jsn_cont.components[0].components;
 
+    console.log(form)
+
+    const formRendered = this.renderForm(formComponents, this.DOMElementID);
+    
     // const form: FormioJSON = await this.formioSvc.getForm();
-    // const formRendered = this.renderForm(form, this.DOMElementID);
     // const formioComponents = form.components;
     
     // const eventListeners = this.getEventListeners(formioComponents);
     // this.initializeEventListeners(eventListeners);
+
+  // getForm(formID: string) {
+  //   this.subscriptions.add(
+  //     this.formioSvc.readOne(formID)
+  //       .subscribe({
+  //         next: data => {
+  //           console.log(data);
+  //           this.form = data;
+  //         },
+  //         error: err => console.log('Error:', err),
+  //         complete: () => console.log('Complete readOneForm')
+  //       })
+  //   );
   }
   
-  async renderForm(form: any, DOMElementID: string): Promise<void> {
+  async renderForm(formComponents: any, DOMElementID: string): Promise<void> {
     const DOMLocation = document.getElementById(DOMElementID);
-    const formRendered = await Formio.createForm(DOMLocation, form);
+    const formRendered = await Formio.createForm(DOMLocation, formComponents);
     return formRendered;
   }
   
