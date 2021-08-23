@@ -1,12 +1,12 @@
 import { Observable } from 'rxjs';
 import { SubSink } from 'subsink';
 import { Formio } from 'formiojs';
+import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, Renderer2 } from '@angular/core';
 import { FormioService } from '@core/services/formio.service';
 import { FakeBackendService } from '@core/services/fake-backend.service';
 import { FormioComponent, FormioJSON } from '@core/interfaces/formio-json.interface';
 import { FormcontrolEventListener } from '@core/interfaces/formcontrol-event-pair.interface';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-formio-detail',
@@ -25,35 +25,19 @@ export class FormioDetailComponent implements OnInit {
     private renderer2: Renderer2,
     private formioSvc: FormioService,
     private activatedRoute: ActivatedRoute,
+    private fakeBackendSvc: FakeBackendService
   ) {}
 
   async ngOnInit() {
-    const formID = this.activatedRoute.snapshot.params.id;
-    const form = await this.formioSvc.readOne(formID);
-    const formComponents = form.jsn_cont.components[0].components;
-
-    console.log(form)
-
-    const formRendered = this.renderForm(formComponents, this.DOMElementID);
+    // const formID = this.activatedRoute.snapshot.params.id;
+    // const form = await this.formioSvc.readOne(formID);
+    // const formComponents = form.jsn_cont.components[0].components;
     
-    // const form: FormioJSON = await this.formioSvc.getForm();
-    // const formioComponents = form.components;
-    
-    // const eventListeners = this.getEventListeners(formioComponents);
-    // this.initializeEventListeners(eventListeners);
-
-  // getForm(formID: string) {
-  //   this.subscriptions.add(
-  //     this.formioSvc.readOne(formID)
-  //       .subscribe({
-  //         next: data => {
-  //           console.log(data);
-  //           this.form = data;
-  //         },
-  //         error: err => console.log('Error:', err),
-  //         complete: () => console.log('Complete readOneForm')
-  //       })
-  //   );
+    const form: FormioJSON = await this.formioSvc.getForm();
+    const formRendered = this.renderForm(form, this.DOMElementID);
+    const formioComponents = form.components;
+    const eventListeners = this.getEventListeners(formioComponents);
+    this.initializeEventListeners(eventListeners);
   }
   
   async renderForm(formComponents: any, DOMElementID: string): Promise<void> {
@@ -115,16 +99,6 @@ export class FormioDetailComponent implements OnInit {
       console.log('CallBack response is not an Observable nor Promise');
     }
   }
-
-  // setEventListenersToForm(formControls: HTMLInputElement[], formioComponents: FormioComponent[]) {
-  //   this.formioSvc.setEvenListeners(formControls, formioComponents)
-    // .subscribe({
-    //   next: (event: any) => {
-    //     let formControl: HTMLInputElement = event.target;
-    //     console.log('Value: ', formControl.value);
-    //   }
-    // })
-  // }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();

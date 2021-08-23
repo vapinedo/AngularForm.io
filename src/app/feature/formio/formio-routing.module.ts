@@ -6,7 +6,7 @@ import { FormioDetailComponent } from './pages/detail/formio-detail.component';
 
 const routes: Routes = [
   { path: 'admin', component: FormioAdminComponent },
-  { path: 'detail/:id', component: FormioDetailComponent }
+  { path: 'detail', component: FormioDetailComponent }
 ];
 
 @NgModule({

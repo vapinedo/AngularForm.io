@@ -3,6 +3,7 @@ import { pluck } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { FakeBackendService } from './fake-backend.service';
 import { apiURLS, apiEndPoints } from '@environments/environment';
+import { FormioJSON } from '@core/interfaces/formio-json.interface';
 
 @Injectable()
 export class FormioService {
@@ -14,6 +15,10 @@ export class FormioService {
     private http: HttpClient,
     private fakeBackendSvc: FakeBackendService
   ) {}
+
+  getForm(): Promise<FormioJSON> {
+    return this.fakeBackendSvc.getForm();
+  }
 
   read() {  
     return this.http.get<any>(`${this.url}/${this.endoPoint}`)
